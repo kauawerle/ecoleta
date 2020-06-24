@@ -1,0 +1,14 @@
+{
+	"name": "Mercado Jonoas",
+  "email": "cott@email.com",
+  "whatssap": "459999999",
+  "latitude": "-4689",
+  "longitude": "-23455",
+  "city": "Medianeira",
+  "uf": "PR",
+	"items": [
+		1,
+		2,
+		6
+	]
+}
