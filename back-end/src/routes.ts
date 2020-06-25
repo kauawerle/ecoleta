@@ -5,14 +5,25 @@ import { celebrate, Joi, Segments } from 'celebrate';
 
 import PointsController from './controllers/PointsController';
 import ItemsControllers from './controllers/ItemsController';
+import UsersController from './controllers/UsersController';
+
 
 const routes = express.Router()
 const upload = multer(multerConfig);
 
+
+
 const pointController = new PointsController();
 const itemsController = new ItemsControllers();
+const userController = new UsersController();
 
+/**
+ * Rotas de items
+ */
 routes.get('/items', itemsController.index);
+/**
+ * Rotas de pontos
+ */
 routes.get('/points', pointController.index);
 routes.get('/points/:id', pointController.show);
 routes.delete('/points/:id', celebrate({
@@ -42,8 +53,30 @@ routes.post(
   ),
   pointController.create);
 
-  routes.post(
-    '/points/:id/likes',
-    pointController.likes);
+/**
+ * Rotas de usuarios
+ */
+routes.get('/users/:id', userController.show);
+routes.get('/users', userController.index);
+routes.delete('/users/:id', celebrate({
+  [Segments.PARAMS]: Joi.object().keys({
+    id: Joi.number().required(),
+  })
+}), userController.delete);
+
+routes.post(
+  '/users',
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().required(),
+      email: Joi.string().required().email(),
+      password: Joi.string().required(),
+      likes: Joi.number().required(),
+    }),
+
+  }, {
+    abortEarly: false
+  }),
+  userController.create);
 
 export default routes;

@@ -19,7 +19,7 @@ class PointsController {
     const serializedPoints = points.map(point => {
       return {
        ...point,
-        image_url: `http://192.168.0.107:3333/uploads/${point.image}`,
+        image_url: `http://localhost:3333/uploads/${point.image}`,
       }
     });
 
@@ -43,7 +43,7 @@ class PointsController {
 
       const serializedPoint =  {
          ...point,
-          image_url: `http://192.168.0.107:3333/uploads/${point.image}`,
+          image_url: `http://localhost:3333/uploads/${point.image}`,
       };
 
 
@@ -60,7 +60,6 @@ class PointsController {
       city,
       uf,
       items,
-      likes
     } = req.body;
 
     const trx = await knex.transaction();
@@ -74,7 +73,6 @@ class PointsController {
       longitude,
       city,
       uf,
-      likes: 0
     }
 
     const insertedIds = await trx('points').insert(point);
@@ -102,7 +100,6 @@ class PointsController {
 
   async delete(req: Request, res: Response) {
    const {id} = req.params;
-   const { likes } = req.body;
 
    const point = await knex('points')
    .where("id", id)
@@ -112,62 +109,8 @@ class PointsController {
    if(point.id !== id) {
     return res.status(401).json({ error:" Operation not permited"})
    }
-   this.likes(req, res);
    await knex('points').where('id', id).delete();
    return res.status(204).send()
-  }
-
-  async likes(req: Request, res: Response) {
-    const {
-      name,
-      email,
-      whatsapp,
-      latitude,
-      longitude,
-      city,
-      uf,
-      items,
-      likes
-    } = req.body;
-
-    const trx = await knex.transaction();
-
-    const point = {
-      image: req.file.filename,
-      name,
-      email,
-      whatsapp,
-      latitude,
-      longitude,
-      city,
-      uf,
-      likes: 0
-    }
-
-    point.likes += 1;
-
-    const insertedIds = await trx('points').insert(point);
-
-    const point_id = insertedIds[0]
-
-    const pointItems = items
-    .split(',')
-    .map((item: string) => Number(item.trim()))
-    .map((item_id: number) => {
-      return {
-        item_id,
-        point_id
-      }
-    })
-
-    await trx('point_items').insert(pointItems)
-    await trx.commit();
-
-    return res.json({
-      id: point_id,
-      ...point
-    });
-
   }
 
 }
