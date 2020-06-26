@@ -6,13 +6,14 @@ import { celebrate, Joi, Segments } from 'celebrate';
 import PointsController from './controllers/PointsController';
 import ItemsControllers from './controllers/ItemsController';
 import UsersController from './controllers/UsersController';
+import CollectorsController from './controllers/CollectorsController';
 
 
 const routes = express.Router()
 const upload = multer(multerConfig);
 
 
-
+const collectorsController = new CollectorsController();
 const pointController = new PointsController();
 const itemsController = new ItemsControllers();
 const userController = new UsersController();
@@ -78,5 +79,32 @@ routes.post(
     abortEarly: false
   }),
   userController.create);
+
+/**
+ * Rota de coletores
+ */
+
+routes.get('/collectors', collectorsController.index);
+routes.get('/collectors/:id', collectorsController.show);
+routes.post(
+  '/collectors',
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().required(),
+      email: Joi.string().required().email(),
+      password: Joi.string().required(),
+      cpf: Joi.string().required(),
+    }),
+
+  }, {
+    abortEarly: false
+  }),
+  collectorsController.create);
+
+routes.delete('/collectors/:id', celebrate({
+  [Segments.PARAMS]: Joi.object().keys({
+    id: Joi.number().required(),
+  })
+}), collectorsController.delete);
 
 export default routes;
