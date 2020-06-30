@@ -2,49 +2,49 @@ import React, { useState, useEffect } from 'react';
 import { Feather as Icon } from '@expo/vector-icons';
 import { View, ImageBackground, Image, StyleSheet, Text, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
-
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import api from '../../services/api';
 
-interface Params {
-  email: string;
-  password: string,
-}
-
-interface Users {
-  name: string;
-  email: string;
-  likes: string;
-}
-
 const Home = () => {
-  const route = useRoute();
-  const routeParms = route.params as Params;
-
   const navigation = useNavigation();
+
+  interface Params {
+    name: string;
+    cpf: string;
+  }
+  interface Collector {
+    name: string;
+    cpf: string;
+  }
 
   const [uf, setUf] = useState('');
   const [city, setCity] = useState('');
-  const [users, setUsers] = useState<Users[]>([]);
+  const [collectors, setCollectors] = useState<Collector[]>([]);
+
+
+  const route = useRoute();
+
+  const routeParms = route.params as Params;
 
 
   useEffect(() => {
-    api.get('users', {
+    api.get('collectors', {
       params: {
-        email: routeParms.email,
-        password: routeParms.password,
+        cpf: routeParms.cpf,
+        name: routeParms.name,
       }
     }).then(res => {
-      setUsers(res.data);
+      setCollectors(res.data);
     })
   }, [])
+
 
   function handleNavigationToPoints() {
     navigation.navigate('Points', {
       uf,
       city,
-      users
+      collectors
     });
   }
   return (

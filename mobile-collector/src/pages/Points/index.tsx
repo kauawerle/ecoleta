@@ -24,27 +24,24 @@ interface Point {
   latitude: number;
   longitude: number;
 }
+interface Collector {
+  id: number;
+  name: string;
+  cpf: string;
+}
 
 interface Params {
   uf: string;
   city: string;
   name: string;
-  email: string;
-  likes: string;
-}
-
-interface Users {
-  name: string;
-  email: string;
-  likes: string;
+  cpf: string;
 }
 
 const Points = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [points, setPoints] = useState<Point[]>([]);
+  const [collectors, setCollectors] = useState<Collector[]>([]);
   const [selectedItems, setSelectedItems] = useState<Number[]>([]);
-  const [users, setUsers] = useState<Users[]>([]);
-
 
   const [initialPosition, setInitialPosition] = useState<[number, number]>([0, 0]);
 
@@ -58,6 +55,8 @@ const Points = () => {
       setItems(res.data);
     });
   }, [])
+
+
 
   useEffect(() => {
     async function loadPositon() {
@@ -88,18 +87,22 @@ const Points = () => {
   }, [selectedItems])
 
   useEffect(() => {
-    api.get('users', {
+    api.get('collectors', {
       params: {
+        cpf: routeParms.cpf,
         name: routeParms.name,
-        likes: routeParms.likes,
       }
     }).then(res => {
-      setUsers(res.data);
+      setCollectors(res.data);
     })
   }, [])
 
   function handleNavigationBack() {
     navigation.goBack();
+  }
+
+  function handleDeletePoint() {
+    api.delete('points');
   }
 
   function handlenavigateDetail(id: number) {
@@ -126,8 +129,8 @@ const Points = () => {
           <Icon name="arrow-left" size={20} color="#34cb79" />
         </TouchableOpacity>
 
-        {users.map(user => {
-          <Text style={styles.title}>😎 Bem vindo {user.name}. Pontos: {user.likes}</Text>
+        {collectors.map(collector => {
+          <Text style={styles.title}>Bem vindo {collector.name}.</Text>
         })}
         <Text
           style={styles.description}>
@@ -157,11 +160,17 @@ const Points = () => {
                     longitude: point.longitude,
                   }}>
                   <View style={styles.mapMarkerContainer}>
+
                     <Image style={styles.mapMarkerImage} source={{
                       uri: point.image_url
                     }} />
                     <Text style={styles.mapMarkerTitle}>{point.name}</Text>
                   </View>
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => handleDeletePoint}>
+                    <Icon name="x" size={15} color="#fff" />
+                  </TouchableOpacity>
                 </Marker>
               ))}
             </MapView>
@@ -197,7 +206,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingTop: 20 + Constants.statusBarHeight,
   },
+  deleteButton: {
+    position: 'absolute',
+    width: 21,
+    height: 20,
+    left: 67,
+    top: 2,
 
+    borderRadius: 10,
+    backgroundColor: '#e02041',
+
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   title: {
     fontSize: 20,
     fontFamily: 'Ubuntu_700Bold',
